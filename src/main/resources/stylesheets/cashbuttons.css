@@ -1,0 +1,5 @@
+.button {
+    -fx-font-size: 13px;
+    -fx-border-color: pink;
+    -fx-focus-traversable: false;
+}
