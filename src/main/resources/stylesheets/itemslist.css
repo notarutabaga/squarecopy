@@ -1,0 +1,10 @@
+.list-view {
+    -fx-background-color: transparent;
+    -fx-border-color: pink;
+    -fx-border-width: 2px;
+}
+
+.list-cell {
+    -fx-background-color: transparent;
+    -fx-font-size: 14;
+}
