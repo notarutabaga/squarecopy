@@ -1,18 +1,14 @@
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXListView;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
-import javafx.scene.text.Font;
-import javafx.scene.text.TextAlignment;
 
+import java.text.DecimalFormat;
+import java.util.Currency;
 import java.util.LinkedHashMap;
 
 public class Controller {
     public GridPane buttonGrid;
 
-    public TextArea itemsArea;
-    public TextField totalField;
     public JFXListView itemsList;
     public JFXButton totalButton;
 
@@ -24,7 +20,18 @@ public class Controller {
         loadElements();
         loadButtons();
         total = 0;
-        totalButton.setText("$" + total + " ->");
+        totalButton.setText(moneyFormat());
+    }
+
+    public String moneyFormat() {
+        String pattern = "$#,###,###,###.## \u27AD";
+        DecimalFormat decimalFormat = new DecimalFormat(pattern);
+        decimalFormat.setDecimalSeparatorAlwaysShown(true);
+        decimalFormat.setMinimumFractionDigits(2);
+
+        String format = decimalFormat.format(total);
+        System.out.println(format);
+        return format;
     }
 
     public void loadElements() {
@@ -86,7 +93,7 @@ public class Controller {
             System.out.println(name + "    " + price);
             itemsList.getItems().add(name + "    " + price);
             total += price;
-            totalButton.setText("$" + total + " ->");
+            totalButton.setText(moneyFormat());
         });
 
         return button;
