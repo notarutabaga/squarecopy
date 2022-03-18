@@ -34,7 +34,7 @@
             <Font size="24.0" />
          </font>
       </JFXButton>
-      <Pane fx:id="payPane" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #f5f5f5;">
+      <Pane fx:id="payPane" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #f5f5f5;" visible="false">
          <children>
             <Label fx:id="totalLabel" alignment="CENTER" layoutX="187.0" layoutY="72.0" prefHeight="63.0" prefWidth="226.0" text="- $24.95 -" textAlignment="CENTER">
                <font>

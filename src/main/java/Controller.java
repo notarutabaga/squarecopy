@@ -1,14 +1,11 @@
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXListView;
-import javafx.event.ActionEvent;
 import javafx.scene.control.Label;
+import javafx.scene.control.SelectionMode;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 
-import java.lang.reflect.Array;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 
 public class Controller {
@@ -25,6 +22,7 @@ public class Controller {
     public JFXButton customButton;
 
     double total;
+    double tax;
 
     LinkedHashMap<String, Element> elementsMap = new LinkedHashMap<>();
     double[] cashAmounts = {1.0, 5.0, 10.0, 20.0, 30.0, 40.0, 50.0, 100.0};
@@ -32,34 +30,29 @@ public class Controller {
     public void initialize() {
         loadElements();
         loadButtons();
+        itemsList.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        itemsList.getItems().clear();
+
         total = 0;
-        totalButton.setText(moneyFormat());
+        tax = 0;
+        totalButton.setText(moneyFormat(0, "total button"));
+
         payPane.setVisible(false);
+
         itemsList.getItems().clear();
     }
 
-    public String moneyFormat() {
-        String pattern = "$#,###,###,###.## \u27AD";
-        DecimalFormat decimalFormat = new DecimalFormat(pattern);
-        decimalFormat.setDecimalSeparatorAlwaysShown(true);
-        decimalFormat.setMinimumFractionDigits(2);
+    public String moneyFormat(double amount, String formatType) {
+        String pattern = null;
 
-        String format = decimalFormat.format(total);
-        return format;
-    }
+        if (formatType.equals("total button")) {
+            pattern = "$#,###,###,###.## \u27AD";
+        } else if (formatType.equals("default")) {
+            pattern = "$#,###,###,###.##";
+        } else if (formatType.equals("pay screen")) {
+            pattern = "- $#,###,###,###.## -";
+        }
 
-    public String payFormat() {
-        String pattern = "- $#,###,###,###.## -";
-        DecimalFormat decimalFormat = new DecimalFormat(pattern);
-        decimalFormat.setDecimalSeparatorAlwaysShown(true);
-        decimalFormat.setMinimumFractionDigits(2);
-
-        String format = decimalFormat.format(total);
-        return format;
-    }
-
-    public String exactFormat(double amount) {
-        String pattern = "$#,###,###,###.##";
         DecimalFormat decimalFormat = new DecimalFormat(pattern);
         decimalFormat.setDecimalSeparatorAlwaysShown(true);
         decimalFormat.setMinimumFractionDigits(2);
@@ -124,9 +117,17 @@ public class Controller {
             String name = tempButton.getText();
             Element element = elementsMap.get(name);
             double price = element.getPrice();
-            itemsList.getItems().add(name + "    " + exactFormat(price));
             total += price;
-            totalButton.setText(moneyFormat());
+            tax = 0.07 * total;
+            if (itemsList.getItems().size() == 0) {
+                itemsList.getItems().add(name + "    " + moneyFormat(price, "default"));
+                itemsList.getItems().add("tax    " + moneyFormat(tax, "default"));
+            } else {
+                itemsList.getItems().remove(itemsList.getItems().size() - 1);
+                itemsList.getItems().add(name + "    " + moneyFormat(price, "default"));
+                itemsList.getItems().add("tax    " + moneyFormat(tax, "default"));
+            }
+            totalButton.setText(moneyFormat(total + tax, "total button"));
         });
 
         return button;
@@ -135,29 +136,29 @@ public class Controller {
     public void startPayment() {
         if (total > 0) {
             payPane.setVisible(true);
-            totalLabel.setText(payFormat());
+            totalLabel.setText(moneyFormat(total + tax, "pay screen"));
 
-            exactButton.setText(exactFormat(total));
+            exactButton.setText(moneyFormat(total + tax, "default"));
 
-            double rounded = Math.ceil(total);
+            double rounded = Math.ceil(total + tax);
             int i;
-            if (rounded == total) {
+            if (rounded == (total + tax )) {
                 i = nextGreatest(rounded);
                 rounded = cashAmounts[i];
             }
-            roundedButton.setText(exactFormat(rounded));
+            roundedButton.setText(moneyFormat(rounded, "default"));
 
             int round2 = nextGreatest(rounded);
             if (round2 == -1) {
                 round2Button.setText("");
                 round3Button.setText("");
             } else {
-                round2Button.setText(exactFormat(cashAmounts[round2]));
+                round2Button.setText(moneyFormat(cashAmounts[round2], "default"));
                 int round3 = nextGreatest(cashAmounts[round2]);
                 if (round3 == -1) {
                     round3Button.setText("");
                 } else {
-                    round3Button.setText(exactFormat(cashAmounts[round3]));
+                    round3Button.setText(moneyFormat(cashAmounts[round3], "default"));
                 }
             }
         }
